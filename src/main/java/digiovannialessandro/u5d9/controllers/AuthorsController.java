@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/authors")
@@ -45,6 +46,14 @@ public class AuthorsController {
     @ResponseStatus(HttpStatus.NO_CONTENT) // <-- 204 NO CONTENT
     public void findAndDelete(@PathVariable int authorId) {
         authorsService.findByIdAndDelete(authorId);
+    }
+
+    @PatchMapping("/{authorId}/avatar")
+    public String uploadImage(@RequestParam("avatar") MultipartFile file) {
+        System.out.println(file.getOriginalFilename());
+        System.out.println(file.getSize());
+        return this.authorsService.uploadAvatar(file);
+
     }
 
 }

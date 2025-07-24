@@ -7,7 +7,10 @@ import digiovannialessandro.u5d9.payloads.NewBlogPostPayload;
 import digiovannialessandro.u5d9.services.BlogsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -19,8 +22,8 @@ public class BlogsController {
 
     // 1. - POST http://localhost:3001/blogs (+ req.body)
     @PostMapping("")
-    @ResponseStatus(HttpStatus.CREATED) // <-- 201
-    public Blogpost saveBlog(@RequestBody NewBlogPostPayload body) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public Blogpost saveBlog(@Validated @RequestBody NewBlogPostPayload body, BindingResult validationResult) {
         return blogsService.save(body);
     }
 
@@ -39,7 +42,7 @@ public class BlogsController {
 
     // 4. - PUT http://localhost:3001/blogs/{id} (+ req.body)
     @PutMapping("/{blogId}")
-    public Blogpost findAndUpdate(@PathVariable int blogId, @RequestBody NewBlogPostPayload body) {
+    public Blogpost findAndUpdate(@PathVariable int blogId, @Validated @RequestBody NewBlogPostPayload body,BindingResult validationResult) {
         return blogsService.findByIdAndUpdate(blogId, body);
     }
 
@@ -48,5 +51,13 @@ public class BlogsController {
     @ResponseStatus(HttpStatus.NO_CONTENT) // <-- 204 NO CONTENT
     public void findAndDelete(@PathVariable int blogId) {
         blogsService.findByIdAndDelete(blogId);
+    }
+
+    @PatchMapping("/{blogsId}/avatar")
+    public String uploadImage(@RequestParam("avatar") MultipartFile file) {
+        System.out.println(file.getOriginalFilename());
+        System.out.println(file.getSize());
+        return this.blogsService.uploadAvatar(file);
+
     }
 }

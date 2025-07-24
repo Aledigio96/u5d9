@@ -1,6 +1,8 @@
 package digiovannialessandro.u5d9.services;
 
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import digiovannialessandro.u5d9.entities.Author;
 import digiovannialessandro.u5d9.exceptions.BadRequestException;
 import digiovannialessandro.u5d9.exceptions.NotFoundException;
@@ -11,12 +13,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Map;
 
 @Service
 public class AuthorsService {
 
     @Autowired
     private AuthorsRepository authorsRepository;
+    @Autowired
+    private Cloudinary imgUploader;
 
     public Author save(Author body) {
         authorsRepository.findByEmail(body.getEmail()).ifPresent(user -> {
@@ -50,5 +58,18 @@ public class AuthorsService {
         found.setDateOfBirth(body.getDateOfBirth());
         found.setAvatar(body.getAvatar());
         return authorsRepository.save(found);
+    }
+    public String uploadAvatar(MultipartFile file) {
+
+        Map result = null;
+        try {
+            result = imgUploader.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String imageURL = (String) result.get("url");
+
+        return imageURL;
+
     }
 }
